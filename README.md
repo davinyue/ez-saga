@@ -32,8 +32,8 @@ class RouterConfig extends React.Component {
 ReactDom.render(<RouterConfig />, document.getElementById('root'));
 ```
 
-"Now let's define a model."
-userModel.js
+Now let's define a model 'userModel.js'
+
 ```js
 export const modelName = 'user';
 
