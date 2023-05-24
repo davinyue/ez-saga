@@ -62,7 +62,8 @@ module.exports = {
         loader: 'babel-loader',
         options: { cacheDirectory: true },
         exclude: /node_modules/
-      }, {
+      },
+      {
         test: /\.(tsx|ts)?$/,
         loader: "ts-loader"
       }
@@ -80,10 +81,6 @@ module.exports = {
       exclude: ['node_modules']
     }),
     new webpack.AutomaticPrefetchPlugin(),
-    /** 自动加载模块，而不必import或require，让该模块无处不在 */
-    new webpack.ProvidePlugin({
-      React: "react",
-    }),
     /** 在打包构建中输出当前的进度和简述 */
     new ProgressPlugin({
       /** 默认false，显示活动模块计数和一个活动模块正在进行消息。 */
