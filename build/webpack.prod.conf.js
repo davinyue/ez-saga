@@ -8,6 +8,7 @@ const baseWebpackConfig = require('./webpack.base.conf');
 const config = require('../config');
 const webpackConfig = merge(baseWebpackConfig, {
   mode: 'production',
+  devtool: 'source-map',
   output: {
     path: path.resolve(__dirname, '../dist'),
     filename: '[name].js',

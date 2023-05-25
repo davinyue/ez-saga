@@ -25,16 +25,12 @@
     "build:prod": "cross-env NODE_ENV=production APP_ENV=prod node build/build.js",
     "lint": "eslint --ext .js src"
   },
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
+    "@reduxjs/toolkit": "^1.9.5",
     "redux": "^4.2.1",
     "redux-saga": "^1.2.3",
-    "core-js": "^3.30.2",
-    "global": "^4.4.0",
-    "@babel/runtime-corejs3": "^7.21.5",
-    "@reduxjs/toolkit": "^1.9.5"
-  },
-  "peerDependencies": {
-    "redux": "4.x"
+    "global": "^4.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.7",
@@ -47,12 +43,14 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-flow": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
+    "@babel/runtime-corejs3": "^7.21.5",
     "autoprefixer": "^10.4.3",
     "babel-loader": "^8.2.3",
     "babel-plugin-dynamic-import-webpack": "^1.1.0",
     "babel-plugin-import": "^1.13.3",
     "chalk": "^4.1.2",
     "copy-webpack-plugin": "^10.2.4",
+    "core-js": "^3.30.2",
     "cross-env": "^7.0.3",
     "eslint": "^8.11.0",
     "eslint-plugin-flowtype": "^8.0.3",
@@ -71,8 +69,8 @@
     "webpack-merge": "^5.9.0"
   },
   "engines": {
-    "node": ">= 6.0.0",
-    "npm": ">= 3.0.0"
+    "node": ">= 14.0.0",
+    "npm": ">= 6.0.0"
   },
   "browserslist": [
     ">0.2%",

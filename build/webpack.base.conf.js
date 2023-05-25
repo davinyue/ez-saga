@@ -28,12 +28,13 @@ module.exports = {
     /** 对于按需加载(on-demand-load)或加载外部资源(external resources)（如图片、文件等）来说，
      * output.publicPath 是很重要的选项。如果指定了一个错误的值，则在加载这些资源时会收到 404 错误 */
     publicPath: config.publicPath,
+    chunkFormat: 'module',
     library: {
       type: 'umd'
     }
   },
   /** 传递多个目标时使用共同的特性子集, webpack 将生成 web 平台的运行时代码，并且只使用 ES5 相关的特性 */
-  target: ['web', 'es5'],
+  target: ['web', 'es6'],
   /** 设置模块如何被解析 */
   resolve: {
     /** 尝试按顺序解析这些后缀名。如果有多个文件有相同的名字，但后缀名不同，
