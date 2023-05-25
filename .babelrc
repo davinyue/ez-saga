@@ -1,0 +1,65 @@
+{
+  //解决ES6和CommonJS模块导出不能互用问题
+  "sourceType": "unambiguous",
+  "presets": [
+    [
+      //用于根据目标环境进行转译，并配置了目标浏览器的版本
+      "@babel/preset-env",
+      {
+        "modules": "auto",
+        //"targets": "> 0.25%, not dead"
+        "targets": {
+          "chrome": "58",
+          "ie": "11"
+        },
+        "useBuiltIns": "entry",
+        "corejs": 3
+      }
+    ],
+    // 用于支持 TypeScript
+    "@babel/preset-typescript",
+    //用于支持Flow 类
+    "@babel/preset-flow"
+  ],
+  "plugins": [
+    "dynamic-import-webpack",
+    [
+      //用于支持装饰器语法
+      "@babel/plugin-proposal-decorators",
+      {
+        "legacy": true
+      }
+    ],
+    [
+      //用于支持类属性
+      "@babel/plugin-proposal-class-properties",
+      {
+        "loose": true
+      }
+    ],
+    [
+      //用于支持私有方法
+      "@babel/plugin-proposal-private-methods",
+      {
+        "loose": true
+      }
+    ],
+    [
+      //用于支持对象中的私有属性
+      "@babel/plugin-proposal-private-property-in-object",
+      {
+        "loose": true
+      }
+    ],
+    [
+      //用于将 Babel 运行时注入到转译代码中，以避免重复代码
+      "@babel/plugin-transform-runtime",
+      {
+        "absoluteRuntime": false,
+        "corejs": 3,
+        "helpers": true,
+        "regenerator": true
+      }
+    ]
+  ]
+}
