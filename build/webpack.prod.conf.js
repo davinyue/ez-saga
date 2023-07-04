@@ -4,15 +4,13 @@ const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const baseWebpackConfig = require('./webpack.base.conf');
 
-/** 配置 */
-const config = require('../config');
 const webpackConfig = merge(baseWebpackConfig, {
   mode: 'production',
   devtool: 'source-map',
   output: {
     path: path.resolve(__dirname, '../dist'),
     filename: '[name].js',
-    publicPath: config.publicPath
+    publicPath: '/'
   },
   /** 文件大小限定通知 */
   performance: {

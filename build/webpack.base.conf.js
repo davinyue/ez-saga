@@ -7,12 +7,6 @@ const { ProgressPlugin } = require("webpack")
 const isPro = process.env.NODE_ENV === 'production';
 const isProName = isPro ? 'pro' : 'dev';
 console.log("当前webpack配置环境:" + isProName);
-
-const config = require('../config');
-/** 当前配置 */
-console.log("当前环境:" + process.env.APP_ENV);
-console.log("当前配置:" + JSON.stringify(config));
-
 module.exports = {
   context: path.resolve(__dirname, '../'),
   /** 入口文件 */
@@ -27,7 +21,7 @@ module.exports = {
     filename: '[name].js',
     /** 对于按需加载(on-demand-load)或加载外部资源(external resources)（如图片、文件等）来说，
      * output.publicPath 是很重要的选项。如果指定了一个错误的值，则在加载这些资源时会收到 404 错误 */
-    publicPath: config.publicPath,
+    publicPath: '/',
     chunkFormat: 'module',
     library: {
       type: 'umd'
@@ -45,8 +39,7 @@ module.exports = {
     ],
     /** 创建 import 或 require 的别名，来确保模块引入变得更简单。例如，一些位于 src/ 文件夹下的常用模块 */
     alias: {
-      '@': path.resolve(__dirname, '../src'),
-      'sysConfig': path.resolve(__dirname, '../config')
+      '@': path.resolve(__dirname, '../src')
     },
     fallback: {
       dgram: false,

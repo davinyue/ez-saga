@@ -35,6 +35,11 @@ function getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware) {
     if (registedModel[model.name]) {
       return;
     }
+    delete model.initialState;
+    if (!model.state) {
+      model.state = {};
+    }
+    model.initialState = model.state;
     if (!model.reducers) {
       model.reducers = {};
     }
