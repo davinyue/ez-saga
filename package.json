@@ -1,6 +1,6 @@
 {
   "name": "ez-saga",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The ez-saga project is a project that imitates dva-js",
   "main": "src/index.js",
   "sideEffects": false,
@@ -25,13 +25,13 @@
     "build:prod": "cross-env NODE_ENV=production APP_ENV=prod node build/build.js",
     "lint": "eslint --ext .js src"
   },
-  "dependencies": {},
-  "peerDependencies": {
+  "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
     "redux": "^4.2.1",
     "redux-saga": "^1.2.3",
     "global": "^4.4.0"
   },
+  "peerDependencies": {},
   "devDependencies": {
     "@babel/core": "^7.17.7",
     "@babel/eslint-parser": "^7.17.0",
