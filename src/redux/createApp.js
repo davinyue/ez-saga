@@ -6,6 +6,9 @@ import win from 'global/window';
 import createPromiseMiddleware from './createPromiseMiddleware';
 
 function saveState(state, action) {
+  if (!action.payload) {
+    return state;
+  }
   let newStat = {
     ...state,
     ...action.payload
@@ -42,6 +45,9 @@ function getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware) {
     model.initialState = model.state;
     if (!model.reducers) {
       model.reducers = {};
+    }
+    if (!model.reducers.saveState) {
+      model.reducers.saveState = saveState;
     }
     if (!model.effect) {
       model.effect = {};
