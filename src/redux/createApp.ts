@@ -16,6 +16,16 @@ function saveState(state, action) {
   return newStat;
 }
 
+/** 状态 */
+export interface State  {
+  [key: string]: any;
+}
+
+export interface Model {
+  state: State;
+  effect: function;
+}
+
 /** 
  * 获取注册model函数
  * @param store redux store
