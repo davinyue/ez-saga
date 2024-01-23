@@ -1,11 +1,12 @@
-import { legacy_createStore as createStore, applyMiddleware, compose } from 'redux';
+import { legacy_createStore as createStore, applyMiddleware, compose, Action as ReduxAction, Store } from 'redux';
 import { createSlice, combineReducers } from '@reduxjs/toolkit';
-import createSagaMiddleware from 'redux-saga';
+import createSagaMiddleware, { Action, SagaMiddleware } from 'redux-saga';
+import { PutEffect, SelectEffect } from 'redux-saga/effects';
 import { call, put, select, takeEvery, putResolve } from 'redux-saga/effects';
 import win from 'global/window';
-import createPromiseMiddleware from './createPromiseMiddleware';
+import { Reducer, AnyAction } from 'redux';
 
-function saveState(state, action) {
+const saveState: Reducer<any, AnyAction> = (state: any, action: AnyAction) => {
   if (!action.payload) {
     return state;
   }
@@ -16,15 +17,86 @@ function saveState(state, action) {
   return newStat;
 }
 
-/** 状态 */
-export interface State  {
-  [key: string]: any;
+/** payload action类型 */
+export interface PayloadAction extends Action<string>, ReduxAction<string> {
+  payload: any
 }
 
-export interface Model {
-  state: State;
-  effect: function;
+/** 工具 */
+export interface EffectTool {
+  call: (...args: any[]) => any,
+  put: <A extends Action>(action: Action) => PutEffect<A>,
+  select: (selectFunc: (state: any) => any) => SelectEffect
 }
+
+/** Effect函数类型 */
+export interface Effect {
+  (action: PayloadAction, tool: EffectTool): Promise<any>;
+}
+
+/** ModelReducer定义 */
+export interface ModelReducer {
+  [key: string]: Reducer<any, AnyAction>;
+}
+
+
+/** ModelEffect定义 */
+export interface ModelEffect {
+  [key: string]: Effect;
+}
+
+export interface ReduxModel {
+  name: string,
+  state: any;
+  initialState: any,
+  reducers: ModelReducer
+  effects: ModelEffect;
+}
+
+export interface RegistedModel {
+  [key: string]: ReduxModel;
+}
+
+/** app */
+export interface ReduxApp {
+  store: Store<any, ReduxAction>,
+  sagaMiddleware: SagaMiddleware<object>;
+  regist: (model: ReduxModel) => void
+}
+
+/** 
+ * 创建中间层
+ * @param registedModel 已注册model
+ */
+function createPromiseMiddleware(registedModel: RegistedModel) {
+  function isEffect(type: string) {
+    if (!type || typeof type !== 'string') return false;
+    const [modelName, effect] = type.split('/');
+    const model = registedModel[modelName];
+    if (model) {
+      if (model.effects && model.effects[effect]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return () => (next: (arg: any) => any) => (action: ReduxAction) => {
+    const { type } = action;
+    if (isEffect(type)) {
+      return new Promise((resolve, reject) => {
+        next({
+          _dy_resolve: resolve,
+          _dy_reject: reject,
+          ...action,
+        });
+      });
+    } else {
+      return next(action);
+    }
+  };
+}
+
 
 /** 
  * 获取注册model函数
@@ -34,7 +106,9 @@ export interface Model {
  * @param sagaMiddleware saga中间件
  * @returns 返回function regist(model)
  */
-function getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware) {
+function getRegistModelFunc(store: Store<any, ReduxAction>, registedModel: RegistedModel,
+  allReducers: { [x: string]: Reducer<any, AnyAction>; },
+  sagaMiddleware: SagaMiddleware<object>): (model: ReduxModel) => void {
   /** model函数注册函数
    * @param model 模块, 其格式为
    * {
@@ -44,7 +118,7 @@ function getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware) {
    *    effects: {}
    * }
    */
-  return function regist(model) {
+  return function regist(model: ReduxModel): void {
     if (registedModel[model.name]) {
       return;
     }
@@ -59,8 +133,8 @@ function getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware) {
     if (!model.reducers.saveState) {
       model.reducers.saveState = saveState;
     }
-    if (!model.effect) {
-      model.effect = {};
+    if (!model.effects) {
+      model.effects = {};
     }
     const modelSlice = createSlice(model);
     const reducer = modelSlice.reducer;
@@ -71,10 +145,9 @@ function getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware) {
     store.replaceReducer(newReducer);
     //注册effects
     for (let effect in model.effects) {
-      let type = `${model.name}/${effect}`;
+      let type: string = `${model.name}/${effect}`;
       let execFun = model.effects[effect];
-
-      function* loading(opFun, action) {
+      function* loading(opFun: any, action: any) {
         // 开始异步任务设置loading状态
         yield putResolve({ type: `${model.name}/saveState`, payload: { loading: true } });
         let ret = yield call(execFun, action, opFun);
@@ -95,12 +168,13 @@ function getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware) {
   };
 }
 
+
 /** 创建store */
-export default function create() {
+export default function create(): ReduxApp {
   //已经注册的reducer, key是名字, value是reducer
   const allReducers = {};
   //已注册model
-  const registedModel = {};
+  const registedModel: RegistedModel = {};
 
   const sagaMiddleware = createSagaMiddleware();
 
@@ -126,7 +200,8 @@ export default function create() {
   );
 
   const regist = getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware);
-  return {
+
+  let app: ReduxApp = {
     /** redux store */
     store: store,
     /** saga中间件 */
@@ -134,4 +209,5 @@ export default function create() {
     /** model注册函数 */
     regist: regist
   };
+  return app;
 }
