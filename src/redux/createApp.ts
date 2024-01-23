@@ -31,7 +31,7 @@ export interface EffectTool {
 
 /** Effect函数类型 */
 export interface Effect {
-  (action: PayloadAction, tool: EffectTool): Promise<any>;
+  (action: PayloadAction, tool: EffectTool): Generator;
 }
 
 /** ModelReducer定义 */
@@ -47,10 +47,14 @@ export interface ModelEffect {
 
 export interface ReduxModel {
   name: string,
-  state: any;
+  state?: any;
+  reducers?: ModelReducer
+  effects?: ModelEffect;
+}
+
+interface ReduxSagaModel extends ReduxModel {
   initialState: any,
   reducers: ModelReducer
-  effects: ModelEffect;
 }
 
 export interface RegistedModel {
@@ -118,11 +122,14 @@ function getRegistModelFunc(store: Store<any, ReduxAction>, registedModel: Regis
    *    effects: {}
    * }
    */
-  return function regist(model: ReduxModel): void {
+  return function regist(reduxModel: ReduxModel): void {
+    const model = {
+      ...reduxModel,
+      initialState: {}
+    } as ReduxSagaModel;
     if (registedModel[model.name]) {
       return;
     }
-    delete model.initialState;
     if (!model.state) {
       model.state = {};
     }
