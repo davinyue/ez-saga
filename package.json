@@ -1,6 +1,6 @@
 {
   "name": "ez-saga",
-  "version": "17.0.7",
+  "version": "17.0.8",
   "description": "The ez-saga project is a project that imitates dva-js",
   "main": "src/index.js",
   "sideEffects": false,
