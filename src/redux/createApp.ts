@@ -25,13 +25,13 @@ export interface PayloadAction extends Action<string>, ReduxAction<string> {
 /** 工具 */
 export interface EffectTool {
   call: (...args: any[]) => any,
-  put: <A extends Action>(action: Action) => PutEffect<A>,
-  select: (selectFunc: (state: any) => any) => SelectEffect
+  put: <A extends Action>(action: A) => PutEffect<A>,
+  select: ((selectFunc: (state: any) => any) => SelectEffect) | (() => SelectEffect)
 }
 
 /** Effect函数类型 */
 export interface Effect {
-  (action: PayloadAction, tool: EffectTool): Generator;
+  (action: PayloadAction, tool: EffectTool): Generator | any;
 }
 
 /** ModelReducer定义 */
