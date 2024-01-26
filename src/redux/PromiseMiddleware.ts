@@ -1,6 +1,6 @@
 import { Dispatch, Middleware, MiddlewareAPI, Action } from 'redux';
 import { RegistedModel } from './typeDeclare';
-
+import { PayloadAction } from './typeDeclare';
 /** 
  * 创建中间层
  * @param registedModel 已注册model
@@ -18,7 +18,7 @@ function createPromiseMiddleware<D extends Dispatch>(registedModel: RegistedMode
     return false;
   }
 
-  return (api: MiddlewareAPI<D, any>) => (next: (action: unknown) => any) => (action: unknown) => {
+  return (api: MiddlewareAPI<D, any>) => (next: (action: PayloadAction) => any) => (action: PayloadAction) => {
     let exeEffect = false;
     if ((action as Action)?.type !== undefined) {
       const { type } = action as Action;

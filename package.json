@@ -1,6 +1,6 @@
 {
   "name": "ez-saga",
-  "version": "18.0.4",
+  "version": "17.1.1",
   "description": "The ez-saga project is a project that imitates dva-js",
   "main": "src/index.js",
   "sideEffects": false,
@@ -26,8 +26,8 @@
     "lint": "eslint --ext .js src"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.1.0",
-    "redux": "^5.0.1",
+    "@reduxjs/toolkit": "^1.9.7",
+    "redux": "^4.2.1",
     "redux-saga": "^1.3.0",
     "global": "^4.4.0"
   },
