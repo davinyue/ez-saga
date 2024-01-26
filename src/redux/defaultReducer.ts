@@ -3,7 +3,6 @@ import { Reducer } from 'redux';
 import { PayloadAction } from './typeDeclare';
 
 const saveState: Reducer<any, PayloadAction> = (state: any, action: PayloadAction) => {
-  debugger;
   if (!action.payload) {
     return state;
   }

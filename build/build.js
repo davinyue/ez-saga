@@ -3,15 +3,14 @@ require('./check-versions')()
 
 process.env.NODE_ENV = 'production'
 
-const rm = require('rimraf')
+const { rimraf } = require('rimraf')
 const path = require('path')
 /* 文字着色器, 不能升级, 最后一个可用版本为4.1.2 */
 const chalk = require('chalk')
 const webpack = require('webpack')
 const webpackConfig = require('./webpack.prod.conf')
 
-rm(path.resolve(__dirname, '../dist'), err => {
-  if (err) throw err
+rimraf(path.resolve(__dirname, '../dist')).then(
   webpack(webpackConfig, (err, stats) => {
     if (err) {
       console.log(chalk.red(err.message));
@@ -36,4 +35,6 @@ rm(path.resolve(__dirname, '../dist'), err => {
       '  Opening index.html over file:// won\'t work.\n'
     ))
   })
+).catch(err => {
+  throw err
 })

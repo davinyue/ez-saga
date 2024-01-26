@@ -1,4 +1,4 @@
-import { Dispatch, Middleware, MiddlewareAPI, Action, AnyAction } from 'redux';
+import { Dispatch, Middleware, MiddlewareAPI, Action } from 'redux';
 import { RegistedModel } from './typeDeclare';
 
 /** 
@@ -17,11 +17,8 @@ function createPromiseMiddleware<D extends Dispatch>(registedModel: RegistedMode
     }
     return false;
   }
-  // function isReduxAction(action: unknown): action is Action {
-  //   return (action as Action)?.type !== undefined;
-  // }
 
-  return (api: MiddlewareAPI<D, any>) => (next: (action: AnyAction) => any) => (action: AnyAction) => {
+  return (api: MiddlewareAPI<D, any>) => (next: (action: unknown) => any) => (action: unknown) => {
     let exeEffect = false;
     if ((action as Action)?.type !== undefined) {
       const { type } = action as Action;

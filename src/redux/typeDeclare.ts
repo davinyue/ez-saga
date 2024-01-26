@@ -1,16 +1,17 @@
 /** 类型申明 */
 import {
-  Action as ReduxAction, Store, Reducer, AnyAction
+  Action as ReduxAction, Store, Reducer, UnknownAction
 } from 'redux';
 import { Action, SagaMiddleware } from 'redux-saga';
 import { PutEffect, SelectEffect } from 'redux-saga/effects';
 
 /** payload action类型 */
-export interface PayloadAction extends AnyAction, ReduxAction<string> {
+export interface PayloadAction extends UnknownAction, ReduxAction<string> {
   /** 类型 */
   type: string,
   /** 载体 */
-  payload?: any
+  payload?: any,
+  [extraProps: string]: any;
 }
 
 /** 工具 */
