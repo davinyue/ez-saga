@@ -3,22 +3,10 @@ import { createSlice, combineReducers } from '@reduxjs/toolkit';
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga';
 import { call, put, select, takeEvery, putResolve } from 'redux-saga/effects';
 import win from 'global/window';
-import { Reducer, AnyAction } from 'redux';
-import { ReduxModel, ReduxApp, RegistedModel, ReduxSagaModel, PayloadAction } from './typeDeclare';
-//import saveState from './defaultReducer';
+import { Reducer, Action } from 'redux';
+import { ReduxModel, ReduxApp, RegistedModel, ReduxSagaModel, EffectTool, PayloadAction } from './typeDeclare';
+import saveState from './defaultReducer';
 import createPromiseMiddleware from './PromiseMiddleware';
-
-const saveState: Reducer<any, PayloadAction> = (state: any, action: PayloadAction) => {
-  debugger;
-  if (!action.payload) {
-    return state;
-  }
-  let newStat = {
-    ...state,
-    ...action.payload
-  };
-  return newStat;
-};
 
 /** 
  * 获取注册model函数
@@ -29,7 +17,7 @@ const saveState: Reducer<any, PayloadAction> = (state: any, action: PayloadActio
  * @returns 返回function regist(model)
  */
 function getRegistModelFunc(store: Store<any, ReduxAction>, registedModel: RegistedModel,
-  allReducers: { [x: string]: Reducer<any, AnyAction>; },
+  allReducers: { [x: string]: Reducer<any, Action>; },
   sagaMiddleware: SagaMiddleware<object>): (model: ReduxModel) => void {
   /** model函数注册函数
    * @param model 模块, 其格式为
@@ -72,7 +60,7 @@ function getRegistModelFunc(store: Store<any, ReduxAction>, registedModel: Regis
     for (let effect in model.effects) {
       let type: string = `${model.name}/${effect}`;
       let execFun = model.effects[effect];
-      function* loading(opFun: any, action: any) {
+      function* loading(opFun: EffectTool, action: PayloadAction) {
         // 开始异步任务设置loading状态
         yield putResolve({ type: `${model.name}/saveState`, payload: { loading: true } });
         let ret = yield call(execFun, action, opFun);
