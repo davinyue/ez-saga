@@ -12,8 +12,12 @@
     "noImplicitAny": false,
     "strict": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
+    "declaration": true,
+    "outDir": "lib",
     "allowSyntheticDefaultImports": true
   },
   "include": [

@@ -14,6 +14,17 @@ export interface PayloadAction extends UnknownAction, ReduxAction<string> {
   [extraProps: string]: any;
 }
 
+declare module 'redux' {
+  export interface Dispatch {
+    <R = any>(action: PayloadAction, ...extraArgs: any[]): Promise<R>;
+  }
+}
+
+// /** 定义AsyncDispatch, 使其兼容redux promiseMiddleware中间件修改返回结果的情况 */
+// export interface AsyncDispatch {
+//   <R = any>(action: PayloadAction, ...extraArgs: any[]): Promise<R>;
+// }
+
 /** 工具 */
 export interface EffectTool {
   /** 调用异步函数, 并获得该异步函数的结果 */
@@ -28,7 +39,7 @@ export interface EffectTool {
 
 /** Effect函数类型 */
 export interface Effect {
-  (action: PayloadAction, tool: EffectTool): Generator | any;
+  (action: PayloadAction, tool: EffectTool): Generator | Promise<any> | any;
 }
 
 /** ModelReducer定义 */
