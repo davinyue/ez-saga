@@ -20,11 +20,6 @@ declare module 'redux' {
   }
 }
 
-// /** 定义AsyncDispatch, 使其兼容redux promiseMiddleware中间件修改返回结果的情况 */
-// export interface AsyncDispatch {
-//   <R = any>(action: PayloadAction, ...extraArgs: any[]): Promise<R>;
-// }
-
 /** 工具 */
 export interface EffectTool {
   /** 调用异步函数, 并获得该异步函数的结果 */
