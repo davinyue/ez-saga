@@ -18,7 +18,8 @@
     },
     "declaration": true,
     "outDir": "lib",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*",

@@ -1,5 +1,5 @@
 import { configureStore, createSlice, combineReducers } from '@reduxjs/toolkit';
-import createSagaMiddleware, { SagaMiddleware } from 'redux-saga';
+import createSagaMiddleware, { SagaMiddleware, Task } from 'redux-saga';
 import { call, put, select, takeEvery, putResolve } from 'redux-saga/effects';
 import { Reducer, Action, Store } from 'redux';
 import { ReduxModel, ReduxApp, RegistedModel, ReduxSagaModel, EffectTool, PayloadAction, Effect } from './typeDeclare';
@@ -41,18 +41,11 @@ function getRegistModelFunc(
   store: Store<any, Action<string>>,
   registedModel: RegistedModel,
   allReducers: { [x: string]: Reducer<any, any>; },
-  sagaMiddleware: SagaMiddleware<object>
+  sagaMiddleware: SagaMiddleware<object>,
+  runningEffects: Record<string, Task[]>
 ): (model: ReduxModel) => void {
-  return function regist(reduxModel: ReduxModel): void {
-    const model = {
-      ...reduxModel,
-      initialState: {}
-    } as ReduxSagaModel;
-
-    if (registedModel[model.name]) {
-      return;
-    }
-
+  // 提取的公共模型安装逻辑
+  function installModel(model: ReduxSagaModel) {
     // 初始化模型属性
     if (!model.state) model.state = {};
     model.initialState = model.state;
@@ -77,15 +70,49 @@ function getRegistModelFunc(
     store.replaceReducer(newReducer);
 
     // 注册 Effects
+    runningEffects[model.name] = [];
     for (const effectKey in model.effects) {
       const type = `${model.name}/${effectKey}`;
+      console.log('ez-saga: regist effect:', type);
       const effectFunc = model.effects[effectKey];
-
-      sagaMiddleware.run(function* () {
+      const task = sagaMiddleware.run(function* () {
         // 使用 takeEvery 的参数传递功能，将上下文传入 handleEffect
         // handleEffect(modelName, effectFunc, tools, action)
         yield takeEvery(type, handleEffect, model.name, effectFunc, opFun);
       });
+      runningEffects[model.name].push(task);
+    }
+  }
+
+  return function regist(reduxModel: ReduxModel): void {
+    const model = {
+      ...reduxModel,
+      initialState: {}
+    } as ReduxSagaModel;
+
+    if (registedModel[model.name]) {
+      return;
+    }
+
+    // 安装模型
+    installModel(model);
+
+    // 开发环境：注册热更新事件监听
+    if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
+      const eventName = `EZ_SAGA_UPDATE_${model.name}`;
+      const hmrHandler = (e: any) => {
+        const newModel = e.detail as ReduxSagaModel;
+        console.log('[ez-saga] Hot updating model:', newModel.name);
+        // 1. 取消旧任务
+        const tasks = runningEffects[model.name];
+        if (tasks && tasks.length) {
+          tasks.forEach(task => task.cancel());
+        }
+        runningEffects[model.name] = [];
+        // 2. 安装新模型 (包含更新 Reducer 和重启 Effects)
+        installModel(newModel);
+      };
+      window.addEventListener(eventName, hmrHandler);
     }
   };
 }
@@ -112,7 +139,10 @@ export default function create(): ReduxApp {
     preloadedState: {}
   });
 
-  const regist = getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware);
+  // 存储运行中的 Effect 任务，用于热更新取消
+  const runningEffects: Record<string, Task[]> = {};
+
+  const regist = getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware, runningEffects);
 
   return {
     store,

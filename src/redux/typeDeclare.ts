@@ -69,7 +69,7 @@ export interface RegistedModel {
 export interface ReduxApp {
   store: Store<any, ReduxAction>,
   sagaMiddleware: SagaMiddleware<object>;
-  regist: (model: ReduxModel) => void
+  regist: (model: ReduxModel) => void;
 }
 
 

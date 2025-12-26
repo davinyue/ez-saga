@@ -143,3 +143,32 @@ export default connect(stateMapProps)(View);
 ```
 
 We can invoke reducers and effects using dispatch, and we can obtain the results returned by effects.
+
+# Vite Plugin for HMR
+
+`ez-saga` provides a built-in Vite plugin to support Hot Module Replacement (HMR) for models. This allows you to modify effects and reducers during development without reloading the page.
+
+## Usage
+
+1. Import the plugin in your `vite.config.ts`:
+
+```typescript
+import { defineConfig } from 'vite';
+import ezSagaHmr from 'ez-saga/vite';
+
+export default defineConfig({
+  plugins: [
+    ezSagaHmr(), // Add ez-saga HMR plugin
+    // other plugins...
+  ]
+});
+```
+
+2. That's it! 
+
+The plugin automatically detects your model files and injects hot update logic. When you modify a model file, `ez-saga` will:
+- Cancel old saga tasks.
+- Re-register the model reducers (hot-swap logic).
+- Restart the effects.
+
+**Note**: This requires your model files to be exported using `export default` and contain a `name` property.
