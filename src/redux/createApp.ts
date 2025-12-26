@@ -1,126 +1,122 @@
-import { legacy_createStore as createStore, applyMiddleware, compose, Action as ReduxAction, Store } from 'redux';
-import { createSlice, combineReducers } from '@reduxjs/toolkit';
+import { configureStore, createSlice, combineReducers } from '@reduxjs/toolkit';
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga';
 import { call, put, select, takeEvery, putResolve } from 'redux-saga/effects';
-import win from 'global/window';
-import { Reducer, Action } from 'redux';
-import { ReduxModel, ReduxApp, RegistedModel, ReduxSagaModel, EffectTool, PayloadAction } from './typeDeclare';
+import { Reducer, Action, Store } from 'redux';
+import { ReduxModel, ReduxApp, RegistedModel, ReduxSagaModel, EffectTool, PayloadAction, Effect } from './typeDeclare';
 import saveState from './defaultReducer';
 import createPromiseMiddleware from './PromiseMiddleware';
 
+// 提取公共的 Effect 工具对象，避免在循环中重复创建
+const opFun: EffectTool = { call, put, putResolve, select };
+
+/**
+ * 统一处理 Effect 的 Generator 函数
+ * 提取到外部以减少闭包创建，提升性能
+ */
+function* handleEffect(
+  modelName: string,
+  effectFunc: Effect,
+  tools: EffectTool,
+  action: PayloadAction
+) {
+  // 开始异步任务设置loading状态
+  yield putResolve({ type: `${modelName}/saveState`, payload: { loading: true } });
+
+  // 执行 Effect (支持 Generator 或 Promise)
+  const ret: any = yield call(effectFunc, action, tools);
+
+  // 结束异步任务关闭loading状态
+  yield putResolve({ type: `${modelName}/saveState`, payload: { loading: false } });
+
+  // 处理 PromiseMiddleware 的回调
+  if (action._dy_resolve) {
+    action._dy_resolve(ret);
+  }
+}
+
 /** 
  * 获取注册model函数
- * @param store redux store
- * @param registedModel 已注册model, 对象, 属性为model名称, value为model
- * @param allReducers 所有的reducers
- * @param sagaMiddleware saga中间件
- * @returns 返回function regist(model)
  */
-function getRegistModelFunc(store: Store<any, ReduxAction>, registedModel: RegistedModel,
-  allReducers: { [x: string]: Reducer<any, Action>; },
-  sagaMiddleware: SagaMiddleware<object>): (model: ReduxModel) => void {
-  /** model函数注册函数
-   * @param model 模块, 其格式为
-   * {
-   *    name: 'name',
-   *    state: {},
-   *    reducers: {},
-   *    effects: {}
-   * }
-   */
+function getRegistModelFunc(
+  store: Store<any, Action<string>>,
+  registedModel: RegistedModel,
+  allReducers: { [x: string]: Reducer<any, any>; },
+  sagaMiddleware: SagaMiddleware<object>
+): (model: ReduxModel) => void {
   return function regist(reduxModel: ReduxModel): void {
     const model = {
       ...reduxModel,
       initialState: {}
     } as ReduxSagaModel;
+
     if (registedModel[model.name]) {
       return;
     }
-    if (!model.state) {
-      model.state = {};
-    }
+
+    // 初始化模型属性
+    if (!model.state) model.state = {};
     model.initialState = model.state;
-    if (!model.reducers) {
-      model.reducers = {};
-    }
-    if (!model.reducers.saveState) {
-      model.reducers.saveState = saveState;
-    }
-    if (!model.effects) {
-      model.effects = {};
-    }
-    const modelSlice = createSlice(model);
-    const reducer = modelSlice.reducer;
-    allReducers[model.name] = reducer;
+    if (!model.reducers) model.reducers = {};
+    // 注入默认的 saveState reducer
+    if (!model.reducers.saveState) model.reducers.saveState = saveState;
+    if (!model.effects) model.effects = {};
+
+    // 使用 Redux Toolkit 创建 Slice
+    const modelSlice = createSlice({
+      name: model.name,
+      initialState: model.initialState,
+      reducers: model.reducers as any
+    });
+
+    // 注册 Reducer
+    allReducers[model.name] = modelSlice.reducer;
     registedModel[model.name] = model;
-    //获得一个新的reducer, 将所有的reducer整合成一个
-    let newReducer = combineReducers(allReducers);
+
+    // 动态更新 Store 的 Reducers
+    const newReducer = combineReducers(allReducers);
     store.replaceReducer(newReducer);
-    //注册effects
-    for (let effect in model.effects) {
-      let type: string = `${model.name}/${effect}`;
-      let execFun = model.effects[effect];
-      function* loading(opFun: EffectTool, action: PayloadAction) {
-        // 开始异步任务设置loading状态
-        yield putResolve({ type: `${model.name}/saveState`, payload: { loading: true } });
-        let ret = yield call(execFun, action, opFun);
-        // 结束异步任务关闭loading状态
-        yield putResolve({ type: `${model.name}/saveState`, payload: { loading: false } });
-        if (action._dy_resolve) {
-          action._dy_resolve(ret);
-        }
-      }
 
-      function* runEffect() {
-        //yield takeLatest(type, loading, { call, put, putResolve, select });
-        yield takeEvery(type, loading, { call, put, putResolve, select });
-      }
+    // 注册 Effects
+    for (const effectKey in model.effects) {
+      const type = `${model.name}/${effectKey}`;
+      const effectFunc = model.effects[effectKey];
 
-      sagaMiddleware.run(runEffect);
+      sagaMiddleware.run(function* () {
+        // 使用 takeEvery 的参数传递功能，将上下文传入 handleEffect
+        // handleEffect(modelName, effectFunc, tools, action)
+        yield takeEvery(type, handleEffect, model.name, effectFunc, opFun);
+      });
     }
   };
 }
 
-
 /** 创建store */
 export default function create(): ReduxApp {
-  //已经注册的reducer, key是名字, value是reducer
   const allReducers = {};
-  //已注册model
   const registedModel: RegistedModel = {};
 
   const sagaMiddleware = createSagaMiddleware();
-
   const promiseMiddleware = createPromiseMiddleware(registedModel);
 
-  const middlewares = [
-    promiseMiddleware,
-    sagaMiddleware
-  ];
-
-  // eslint-disable-next-line no-undef
-  const composeEnhancers = process.env.NODE_ENV !== 'production'
-    && win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-    win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ trace: true, maxAge: 30 }) : compose;
-
-  const enhancers = [applyMiddleware(...middlewares)];
-
-  //redux store
-  const store = createStore(
-    saveState,
-    {},
-    composeEnhancers(...enhancers)
-  );
+  // 使用 configureStore 替代 createStore
+  // 自动集成 Redux DevTools，自动组合中间件
+  const store = configureStore({
+    reducer: saveState, // 初始 Reducer
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        thunk: false, // 禁用默认的 thunk，因为我们使用 saga
+        serializableCheck: false, // 禁用序列化检查，因为 action 中可能包含回调函数 (_dy_resolve)
+        immutableCheck: false // 禁用不可变检查，提升开发环境性能
+      }).concat(promiseMiddleware, sagaMiddleware),
+    devTools: process.env.NODE_ENV !== 'production',
+    preloadedState: {}
+  });
 
   const regist = getRegistModelFunc(store, registedModel, allReducers, sagaMiddleware);
 
-  let app: ReduxApp = {
-    /** redux store */
-    store: store,
-    /** saga中间件 */
-    sagaMiddleware: sagaMiddleware,
-    /** model注册函数 */
-    regist: regist
+  return {
+    store,
+    sagaMiddleware,
+    regist
   };
-  return app;
 }
