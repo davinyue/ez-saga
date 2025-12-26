@@ -1,10 +1,12 @@
 import MagicString from 'magic-string';
+import path from 'path';
+import merge from 'merge-source-map';
 
 /**
  * ez-saga Webpack Loader
  * 对应 src/vite/index.ts 的逻辑，用于 Webpack 场景
  */
-export default function (this: any, source: string) {
+export default function (this: any, source: string, inputSourceMap?: any) {
     // 简单的特征检测
     const hasDefaultExport = /export\s+default/.test(source) || /exports\.default\s*=/.test(source) || /module\.exports\s*=/.test(source);
     // name属性检查 (宽松匹配: name: "foo" 或 name = "foo")
@@ -44,7 +46,7 @@ export default function (this: any, source: string) {
             s.append(`\nmodule.exports = ${modelVarName};\n`);
         } else {
             // 匹配失败
-            this.callback(null, source);
+            this.callback(null, source, inputSourceMap);
             return;
         }
 
@@ -63,10 +65,31 @@ if (module.hot) {
 `;
         s.append(hmrCode);
 
-        // 禁用 SourceMap
-        callback(null, s.toString());
+        // 生成当前的 map
+        const intermediateFileName = path.basename(this.resourcePath) + ".intermediate.js";
+        const currentMap = s.generateMap({
+            source: intermediateFileName,
+            hires: true,
+            includeContent: true
+        });
+
+        // 如果有输入的 map (来自 ts-loader)，则合并
+        let outputMap = currentMap;
+        if (inputSourceMap) {
+            try {
+                // merge-source-map(oldMap, newMap)
+                outputMap = merge(inputSourceMap, JSON.parse(currentMap.toString()));
+            } catch (e) {
+                console.warn('[ez-saga-loader] SourceMap merge failed:', e);
+                outputMap = JSON.parse(currentMap.toString());
+            }
+        } else {
+            outputMap = JSON.parse(currentMap.toString());
+        }
+
+        callback(null, s.toString(), outputMap);
         return;
     }
 
-    this.callback(null, source);
+    this.callback(null, source, inputSourceMap);
 }

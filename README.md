@@ -1,4 +1,24 @@
-The dy-saga project is a project that imitates dva-js
+The ez-saga project is a project that imitates dva-js
+
+# Why ez-saga?
+
+`ez-saga` is designed to simplify Redux + Saga development, offering a modern, developer-friendly experience similar to `dva` but with significant improvements:
+
+| Feature | ez-saga | dva | Raw Redux-Saga |
+| :--- | :--- | :--- | :--- |
+| **Model Architecture** | Centralized (State + Reducers + Effects) | Centralized | Scattered (Actions, Switch, Watchers separated) |
+| **TypeScript Support** | **First-class**, with automatic type inference helper | Poor / Manual | Good but verbose |
+| **Hot Module Replacement** | **Zero-config** (Vite & Webpack 5), supports hot-swapping reducers & effects | Broken / Unmaintained | Manual / Complex setup |
+| **API Simplicity** | **High** (`createApp`, `regist`) | High | Low (High boilerplate) |
+| **Build Tooling** | **Vite & Webpack 5** Support | Webpack 3/4 (Roadhog/Umi dependency) | Agnostic |
+| **Maintenance** | Active | Inactive / Legacy | Active |
+
+**Key Advantages:**
+- **Zero Boilerplate**: No more action types, switch statements, or `yield take` watchers. Just write functions.
+- **Modern HMR**: Built-in plugins for Vite and Webpack to keep your state and logic hot-updatable without page reloads.
+- **Decoupled**: Works with any React setup, not tied to a specific framework like Umi.
+
+
 
 # how to use?
 install
