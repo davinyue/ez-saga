@@ -15,9 +15,7 @@
       }
     ],
     // 用于支持 TypeScript
-    "@babel/preset-typescript",
-    //用于支持Flow 类
-    "@babel/preset-flow"
+    "@babel/preset-typescript"
   ],
   "plugins": [
     //将 JSX 语法转换为对应的函数调用。它会将类似于 HTML 标签的 JSX 元素转换为相应的 JavaScript 函数调用，以创建和渲染 UI 组件
@@ -29,43 +27,6 @@
     ],
     //诉 Babel 解析器（parser）去理解和解析 JSX 语法，以便能够正确识别和处理 JSX 代码。它并不进行任何转换操作，
     //只负责使 Babel 能够理解 JSX 语法，从而能够在后续的转换插件中进行相应的转译操作。
-    "@babel/plugin-syntax-jsx",
-    ////用于支持装饰器语法
-    [
-      "@babel/plugin-proposal-decorators",
-      {
-        "legacy": true
-      }
-    ],
-    //用于支持类属性
-    [
-      "@babel/plugin-transform-class-properties",
-      {
-        "loose": true
-      }
-    ],
-    //用于支持私有方法
-    [
-      "@babel/plugin-transform-private-methods",
-      {
-        "loose": true
-      }
-    ],
-    //用于支持对象中的私有属性
-    [
-      "@babel/plugin-transform-private-property-in-object",
-      {
-        "loose": true
-      }
-    ],
-    //用于将 Babel 运行时注入到转译代码中，以避免重复代码
-    [
-      "@babel/plugin-transform-runtime",
-      {
-        "absoluteRuntime": false,
-        "helpers": true,
-        "regenerator": true
-      }
-    ]
+    "@babel/plugin-syntax-jsx"
   ]
 }
