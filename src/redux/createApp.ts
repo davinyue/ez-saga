@@ -73,7 +73,7 @@ function getRegistModelFunc(
     runningEffects[model.name] = [];
     for (const effectKey in model.effects) {
       const type = `${model.name}/${effectKey}`;
-      console.log('ez-saga: regist effect:', type);
+      console.log('[ez-saga] regist effect:', type);
       const effectFunc = model.effects[effectKey];
       const task = sagaMiddleware.run(function* () {
         // 使用 takeEvery 的参数传递功能，将上下文传入 handleEffect

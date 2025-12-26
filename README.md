@@ -172,3 +172,25 @@ The plugin automatically detects your model files and injects hot update logic. 
 - Restart the effects.
 
 **Note**: This requires your model files to be exported using `export default` and contain a `name` property.
+
+# Webpack Plugin for HMR
+
+For Webpack 5 users, `ez-saga` also provides a compatible HMR plugin.
+
+## Usage
+
+1. Import the plugin in your `webpack.config.js`:
+
+```javascript
+const EzSagaWebpackPlugin = require('ez-saga/webpack').default; // Notice the .default for CJS
+
+module.exports = {
+  // ...
+  plugins: [
+    new EzSagaWebpackPlugin(),
+    // other plugins...
+  ]
+};
+```
+
+This plugin automatically configures the HMR loader for your model files.

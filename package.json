@@ -1,18 +1,22 @@
 {
   "name": "ez-saga",
-  "version": "18.0.6",
+  "version": "18.0.7",
   "description": "The ez-saga project is a project that imitates dva-js",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "exports": {
     ".": "./lib/index.js",
     "./vite": "./lib/vite/index.js",
+    "./webpack": "./lib/webpack/index.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
       "vite": [
         "lib/vite/index.d.ts"
+      ],
+      "webpack": [
+        "lib/webpack/index.d.ts"
       ]
     }
   },
@@ -52,7 +56,8 @@
     "eslint-plugin-standard": "^4.1.0",
     "rimraf": "^6.1.2",
     "typescript": "^5.3.3",
-    "vite": "^7.3.0"
+    "vite": "^7.3.0",
+    "webpack": "^5.104.1"
   },
   "engines": {
     "node": ">= 18.0.0",
