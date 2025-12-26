@@ -1,6 +1,6 @@
 {
   "name": "ez-saga",
-  "version": "18.0.5",
+  "version": "18.0.6",
   "description": "The ez-saga project is a project that imitates dva-js",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
