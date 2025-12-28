@@ -52,5 +52,13 @@ module.exports = {
     "camelcase": 0,
     /** 首选const */
     "prefer-const": 0
-  }
+  },
+  ignorePatterns: [
+    'build/',
+    'config/',
+    'dist/',
+    'node_modules/',
+    '*.js',        // 根目录的 JS 配置文件
+    '!.eslintrc.js' // 如果需要 lint eslintrc 本身,可以用 ! 排除
+  ]
 }
