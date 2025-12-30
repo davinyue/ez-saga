@@ -1,6 +1,6 @@
 {
   "name": "ez-saga",
-  "version": "18.0.8",
+  "version": "18.1.0",
   "description": "The ez-saga project is a project that imitates dva-js",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -45,33 +45,37 @@
     "test:ui": "vitest --ui",
     "dev:example": "cd example && vite"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@reduxjs/toolkit": "^2.11.2",
+    "redux": "^5.0.1",
+    "redux-saga": "^1.4.2"
+  },
+  "dependencies": {
     "magic-string": "^0.30.21",
     "merge-source-map": "^1.1.0",
-    "redux": "^5.0.1",
-    "redux-saga": "^1.4.2",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
-    "@testing-library/user-event": "^14.5.2",
+    "@reduxjs/toolkit": "^2.11.2",
+    "redux": "^5.0.1",
+    "redux-saga": "^1.4.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^25.0.3",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/ui": "^2.1.8",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^5.1.2",
+    "@vitest/ui": "^4.0.16",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-standard": "^4.1.0",
-    "jsdom": "^25.0.1",
+    "jsdom": "^27.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^9.2.0",
     "rimraf": "^6.1.2",
-    "typescript": "^5.3.3",
+    "typescript": "^5.9.3",
     "vite": "^7.3.0",
-    "vitest": "^2.1.8",
+    "vitest": "^4.0.16",
     "webpack": "^5.104.1"
   },
   "engines": {
