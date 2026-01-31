@@ -28,7 +28,6 @@ npm install ez-saga --save
 
 This is the entry file of the project.
 ```js
-import 'core-js';
 import 'react';
 import React from 'react';
 import ReactDom from 'react-dom';
